@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="nav-bar">
+            <div class="logo">
+                <h2 id="logo-text">LOGO</h2>
+                <button onclick="editLogo()">Edit</button>
+            </div>
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Blog</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="article">
+            <div class="article-text">
+                <h2>A title for your first article</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...</p>
+            </div>
+            <div class="article-image"></div>
+        </section>
+
+        <section class="article">
+            <div class="article-text">
+                <h2>A title for your first article</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...</p>
+            </div>
+            <div class="article-image"></div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-left">
+            <h3 id="footer-title">Your company's name</h3>
+            <button onclick="editFooterTitle()">Edit</button>
+            <p id="footer-note">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <button onclick="editFooterNote()">Edit</button>
+            <p>© 2024, Company's name, All rights reserved.</p>
+        </div>
+        <div class="footer-center">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Blog</a>
+        </div>
+        <div class="footer-right" id="social-links">
+        </div>
+    </footer>
+
+    <script>
+        function loadData() {
+            const logo = localStorage.getItem('logoText');
+            const note = localStorage.getItem('footerNote');
+            const title = localStorage.getItem('footerTitle');
+            const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+
+            if (logo) document.getElementById('logo-text').textContent = logo;
+            if (note) document.getElementById('footer-note').textContent = note;
+            if (title) document.getElementById('footer-title').textContent = title;
+
+            const container = document.getElementById('social-links');
+            container.innerHTML = '';
+            links.forEach((link, index) => {
+                const row = document.createElement('div');
+                row.className = 'link-row';
+
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.textContent = link.name;
+
+                const edit = document.createElement('button');
+                edit.textContent = 'Edit';
+                edit.onclick = () => editLink(index);
+
+                const remove = document.createElement('button');
+                remove.textContent = 'Remove';
+                remove.onclick = () => removeLink(index);
+
+                row.appendChild(a);
+                row.appendChild(edit);
+                row.appendChild(remove);
+                container.appendChild(row);
+            });
+
+            const add = document.createElement('button');
+            add.textContent = 'Add';
+            add.onclick = addLink;
+            container.appendChild(add);
+        }
+
+        function editLogo() {
+            const value = prompt('Enter new logo text:');
+            if (value !== null) {
+                document.getElementById('logo-text').textContent = value;
+                localStorage.setItem('logoText', value);
+            }
+        }
+
+        function editFooterNote() {
+            const value = prompt('Enter new footer note:');
+            if (value !== null) {
+                document.getElementById('footer-note').textContent = value;
+                localStorage.setItem('footerNote', value);
+            }
+        }
+
+        function editFooterTitle() {
+            const value = prompt('Enter new footer title:');
+            if (value !== null) {
+                document.getElementById('footer-title').textContent = value;
+                localStorage.setItem('footerTitle', value);
+            }
+        }
+
+        function addLink() {
+            const name = prompt('Enter link name:');
+            if (!name) return;
+            const url = prompt('Enter link URL:');
+            if (!url) return;
+
+            const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+            links.push({ name, url });
+            localStorage.setItem('socialLinks', JSON.stringify(links));
+            loadData();
+        }
+
+        function editLink(index) {
+            const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+            const current = links[index];
+            const name = prompt('Edit link name:', current.name);
+            if (!name) return;
+            const url = prompt('Edit link URL:', current.url);
+            if (!url) return;
+            links[index] = { name, url };
+            localStorage.setItem('socialLinks', JSON.stringify(links));
+            loadData();
+        }
+
+        function removeLink(index) {
+            if (!confirm('Are you sure you want to delete this link?')) return;
+            const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+            links.splice(index, 1);
+            localStorage.setItem('socialLinks', JSON.stringify(links));
+            loadData();
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
