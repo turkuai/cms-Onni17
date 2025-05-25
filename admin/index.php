@@ -1,0 +1,266 @@
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    file_put_contents('data.json', json_encode($data, JSON_PRETTY_PRINT));
+    echo json_encode(["success" => true]);
+    exit;
+}
+
+if (isset($_GET['load'])) {
+    header('Content-Type: application/json');
+    echo file_get_contents('data.json');
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="nav-bar">
+            <div class="logo">
+                <h2 id="logo-text">LOGO</h2>
+                <button onclick="editLogo()">Edit</button>
+            </div>
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Blog</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="article">
+            <div class="article-text">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h2 id="article-title-1">A title for your first article</h2>
+                    <button onclick="editArticleTitle(0)">Edit</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <p id="article-text-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...</p>
+                    <button onclick="editArticleText(0)">Edit</button>
+                </div>
+            </div>
+            <div class="article-image">
+                <div class="image-controls">
+                    <span class="remove-icon">&minus;</span>
+                    <button class="edit-image-button" onclick="editImage()">Edit</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="article">
+            <div class="article-text">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h2 id="article-title-2">A title for your second article</h2>
+                    <button onclick="editArticleTitle(1)">Edit</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <p id="article-text-2">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium...</p>
+                    <button onclick="editArticleText(1)">Edit</button>
+                </div>
+            </div>
+            <div class="article-image">
+                <div class="image-controls">
+                    <span class="remove-icon">&minus;</span>
+                    <button class="edit-image-button" onclick="editImage()">Edit</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-left">
+            <h3 id="footer-title">Your company's name</h3>
+            <button onclick="editFooterTitle()">Edit</button>
+            <p id="footer-note">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <button onclick="editFooterNote()">Edit</button>
+            <p>© 2024, Company's name, All rights reserved.</p>
+        </div>
+        <div class="footer-center">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Blog</a>
+        </div>
+        <div class="footer-right" id="social-links"></div>
+    </footer>
+
+    <script>
+
+        let data = {}
+
+        async function loadData() {
+            // const logo = localStorage.getItem('logoText');
+            // const note = localStorage.getItem('footerNote');
+            // const title = localStorage.getItem('footerTitle');
+            // const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+
+            const res = await fetch('yourfile.php?load');
+            const data = await res.json();
+
+            document.getElementById('logo-text').textContent = data.logoText;
+            document.getElementById('footer-note').textContent = data.footerNote;
+            document.getElementById('footer-title').textContent = data.footerTitle;
+
+            //if (logo) document.getElementById('logo-text').textContent = logo;
+            //if (note) document.getElementById('footer-note').textContent = note;
+            //if (title) document.getElementById('footer-title').textContent = title;
+
+            //for (let i = 1; i <= 2; i++) {
+            //    const titleKey = `article-title-${i}`;
+            //    const textKey = `article-text-${i}`;
+            //    const savedTitle = localStorage.getItem(titleKey);
+            //    const savedText = localStorage.getItem(textKey);
+            //    if (savedTitle) document.getElementById(titleKey).textContent = savedTitle;
+            //    if (savedText) document.getElementById(textKey).textContent = savedText;
+            //}
+
+            data.articles.forEach((article, i) => {
+                document.getElementById(`article-title-${i + 1}`).textContent = article.title;
+                document.getElementById(`article-text-${i + 1}`).textContent = article.text;
+            });
+
+            const container = document.getElementById('social-links');
+            container.innerHTML = '';
+
+            data.socialLinks.forEach((link, index) => {
+                const row = document.createElement('div');
+                row.className = 'link-row';
+
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.textContent = link.name;
+
+                const edit = document.createElement('button');
+                edit.textContent = 'Edit';
+                edit.onclick = () => editLink(index);
+
+                const remove = document.createElement('button');
+                remove.textContent = 'Remove';
+                remove.onclick = () => removeLink(index);
+
+                row.appendChild(a);
+                row.appendChild(edit);
+                row.appendChild(remove);
+                container.appendChild(row);
+            });
+
+            const add = document.createElement('button');
+            add.textContent = 'Add';
+            add.onclick = addLink;
+            container.appendChild(add);
+        }
+
+        function saveData(data) {
+            fetch('yourfile.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(loadData);
+        }
+
+        function editLogo() {
+            const value = prompt('Enter new logo text:');
+            if (value !== null) {
+                // document.getElementById('logo-text').textContent = value;
+                // localStorage.setItem('logoText', value);
+                data.logoText = value;
+                saveData();
+            }
+        }
+
+        function editFooterNote() {
+            const value = prompt('Enter new footer note:');
+            if (value !== null) {
+                //document.getElementById('footer-note').textContent = value;
+                //localStorage.setItem('footerNote', value);
+                data.footerTitle = value;
+                saveData();
+            }
+        }
+
+        function editFooterTitle() {
+            const value = prompt('Enter new footer title:');
+            if (value !== null) {
+                //document.getElementById('footer-title').textContent = value;
+                //localStorage.setItem('footerTitle', value);
+                data.articles[index].title = value;
+                saveData();
+            }
+        }
+
+        function editArticleTitle(index) {
+            const id = `article-title-${index}`;
+            const element = document.getElementById(id);
+            const value = prompt('Enter new article title:', element.textContent);
+            if (value !== null) {
+                //element.textContent = value;
+                //localStorage.setItem(id, value);
+                data.articles[index].text = value;
+                saveData();
+            }
+        }
+
+        function editArticleText(index) {
+            const id = `article-text-${index}`;
+            const element = document.getElementById(id);
+            const value = prompt('Enter new article text:', element.textContent);
+            if (value !== null) {
+                element.textContent = value;
+                localStorage.setItem(id, value);
+            }
+        }
+
+        function addLink() {
+            const name = prompt('Enter link name:');
+            if (!name) return;
+            const url = prompt('Enter link URL:');
+            if (!url) return;
+
+            //const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+            //links.push({ name, url });
+            //localStorage.setItem('socialLinks', JSON.stringify(links));
+            //loadData();
+            data.socialLinks.push({ name, url });
+            saveData()
+        }
+
+        function editLink(index) {
+            //const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+            //const current = links[index];
+            const current = data.socialLinks[index];
+            const name = prompt('Edit link name:', current.name);
+            if (!name) return;
+            const url = prompt('Edit link URL:', current.url);
+            if (!url) return;
+            //links[index] = { name, url };
+            //localStorage.setItem('socialLinks', JSON.stringify(links));
+            //loadData();
+            data.socialLinks[index] = { name, url };
+            saveData();
+        }
+
+        function removeLink(index) {
+            if (!confirm('Are you sure you want to delete this link?')) return;
+            const links = JSON.parse(localStorage.getItem('socialLinks') || '[]');
+            data.socialLinks.splice(index, 1);
+            //localStorage.setItem('socialLinks', JSON.stringify(links));
+            //loadData();
+            saveData();
+        }
+
+        function editImage() {
+            alert("Image edit function placeholder.");
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

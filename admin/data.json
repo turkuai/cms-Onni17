@@ -1,0 +1,18 @@
+{
+  "logoText": "LOGO",
+  "footerNote": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  "footerTitle": "Your company's name",
+  "socialLinks": [
+    { "name": "Twitter", "url": "https://twitter.com" }
+  ],
+  "articles": [
+    {
+      "title": "A title for your first article",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua..."
+    },
+    {
+      "title": "A title for your second article",
+      "text": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium..."
+    }
+  ]
+}
